@@ -10,10 +10,13 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.ContentValues;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         }
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
+    private Uri uri;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
     private Button btnCheckIn;
@@ -158,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
-
+    @SuppressLint("RestrictedApi") // also suppressed the warning
     private void takePhoto() {
         ImageCapture imageCapture = this.imageCapture;
         if (imageCapture == null) return;
@@ -177,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 contentValues
         ).build();
+        uri = outputOptions.getSaveCollection();
 
         imageCapture.takePicture(
                 outputOptions,
