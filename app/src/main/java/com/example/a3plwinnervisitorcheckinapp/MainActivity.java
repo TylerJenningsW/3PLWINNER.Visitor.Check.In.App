@@ -1,6 +1,5 @@
 package com.example.a3plwinnervisitorcheckinapp;
 
-import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,10 +11,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -199,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "Use case binding failed", exception);
                 }
             } catch (ExecutionException | InterruptedException e) {
-                // Exception handling
+                Log.e(TAG, "CameraProviderFuture exception", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
