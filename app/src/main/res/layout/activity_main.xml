@@ -13,7 +13,6 @@
         android:layout_height="0dp"
         android:scaleType="fitCenter"
         android:src="@drawable/winner_logo"
-        app:layout_constraintBottom_toTopOf="@+id/edtMainScreenFirstName"
         app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintEnd_toStartOf="@id/right"
         app:layout_constraintStart_toStartOf="@id/left"
@@ -50,6 +49,38 @@
         app:layout_constraintStart_toEndOf="@id/left"
         app:layout_constraintTop_toBottomOf="@id/edtMainScreenFirstName" />
 
+    <EditText
+        android:id="@+id/edtMainScreenWhoAreYouVisiting"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners_white"
+        android:hint="Who Are You Visiting?"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:padding="20dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/right"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintTop_toBottomOf="@id/edtMainScreenLastName" />
+
+    <EditText
+        android:id="@+id/edtMainScreenReason"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners_white"
+        android:hint="Reason"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:padding="20dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/right"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintTop_toBottomOf="@id/edtMainScreenWhoAreYouVisiting" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnMainScreenSubmit"
         android:layout_width="0dp"
@@ -63,33 +94,44 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/right"
         app:layout_constraintStart_toEndOf="@id/left"
-        app:layout_constraintTop_toBottomOf="@id/edtMainScreenLastName" />
+        app:layout_constraintTop_toBottomOf="@id/edtMainScreenReason" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="3PLWINNER, All Rights Reserved 2023"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintEnd_toStartOf="@id/right" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.15" />
+        app:layout_constraintGuide_percent="0.05" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.75" />
+        app:layout_constraintGuide_percent="0.8" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.25" />
+        app:layout_constraintGuide_percent="0.2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/middle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".5" />
+        app:layout_constraintGuide_percent="0.3" />
 </androidx.constraintlayout.widget.ConstraintLayout>

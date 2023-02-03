@@ -26,8 +26,8 @@ import javax.mail.internet.MimeMessage;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String mFirstName, mLastName;
-    private EditText edtFirstName, edtLastName;
+    private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
+    private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
     private Button btnCheckIn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,25 +41,38 @@ public class MainActivity extends AppCompatActivity {
 
         edtFirstName = findViewById(R.id.edtMainScreenFirstName);
         edtLastName = findViewById(R.id.edtMainScreenLastName);
+        edtWhoAreYouVisiting = findViewById(R.id.edtMainScreenWhoAreYouVisiting);
+        edtReason = findViewById(R.id.edtMainScreenReason);
         btnCheckIn = findViewById(R.id.btnMainScreenSubmit);
 
         btnCheckIn.setOnClickListener(v -> {
             mFirstName = edtFirstName.getText().toString();
             mLastName = edtLastName.getText().toString();
+            mWhoAreYouVisiting = edtWhoAreYouVisiting.getText().toString();
+            mReason = edtReason.getText().toString();
 
             if(TextUtils.isEmpty(mFirstName)) {
-                edtFirstName.setText("Enter First Name");
+                edtFirstName.setError("Enter First Name");
             }
             if(TextUtils.isEmpty(mLastName)) {
-                edtLastName.setText("Enter Last Name");
+                edtLastName.setError("Enter Last Name");
             }
-            if(!mFirstName.isEmpty() && !mLastName.isEmpty()) {
+            if(TextUtils.isEmpty(mWhoAreYouVisiting)) {
+                edtWhoAreYouVisiting.setError("Enter Who Are You Visiting");
+            }
+            if(TextUtils.isEmpty(mReason)) {
+                edtReason.setError("Enter Reason of Visit");
+            }
+            if(!mFirstName.isEmpty() && !mLastName.isEmpty() &&
+                !mWhoAreYouVisiting.isEmpty() && !mReason.isEmpty()) {
                 // take photo and send information through email
                 sendEmail();
                 Intent i = new Intent(MainActivity.this, ConfirmationScreen.class);
                 startActivity(i);
                 edtFirstName.getText().clear();
                 edtLastName.getText().clear();
+                edtWhoAreYouVisiting.getText().clear();
+                edtReason.getText().clear();
             }
         });
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -70,7 +83,10 @@ public class MainActivity extends AppCompatActivity {
         final String username="3plwinnerwms@gmail.com";
         final String password="rfemloyjgbiqnsak";
         final String sender = "jorgem@3plwinner.com";
-        String messageToSend = mFirstName + ", " +mLastName + " checked in at: " + getCurrentTime();
+        String messageToSend = "Visitor name: " + mFirstName + " " +mLastName +
+                "\nWho is visitor seeing: " + mWhoAreYouVisiting +
+                "\nReason of visit: " + mReason +
+                "\nChecked in at: " + getCurrentTime();
         Properties props=new Properties();
         props.put("mail.smtp.auth","true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -87,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(sender));
-            message.setSubject("Warehouse Visitor Check-In - "+ getCurrentTime());
+            message.setSubject("3PLWINNER Visitor Check-In - "+ getCurrentTime());
             message.setText(messageToSend);
             Transport.send(message);
         }catch (MessagingException e) {

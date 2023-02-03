@@ -21,6 +21,6 @@ public class ConfirmationScreen extends AppCompatActivity {
             public void run() {
                 finish();
             }
-        }, 3000);
+        }, 5000);
     }
 }
