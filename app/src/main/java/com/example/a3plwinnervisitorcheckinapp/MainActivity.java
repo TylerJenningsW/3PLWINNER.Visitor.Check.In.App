@@ -56,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
             if(!mFirstName.isEmpty() && !mLastName.isEmpty()) {
                 // take photo and send information through email
                 sendEmail();
+                Intent i = new Intent(MainActivity.this, ConfirmationScreen.class);
+                startActivity(i);
+                edtFirstName.getText().clear();
+                edtLastName.getText().clear();
             }
         });
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -86,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
             message.setSubject("Warehouse Visitor Check-In - "+ getCurrentTime());
             message.setText(messageToSend);
             Transport.send(message);
-            Toast.makeText(getApplicationContext(), "email send successfully", Toast.LENGTH_LONG).show();
         }catch (MessagingException e) {
             throw new RuntimeException(e);
         }
