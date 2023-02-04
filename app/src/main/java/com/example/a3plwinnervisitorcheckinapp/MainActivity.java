@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
         }
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
-    private String path;
     private String fileName;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
@@ -190,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
             message.setContent(multipart);
 
-//            message.setText(messageToSend);
+            message.setText(messageToSend);
             Transport.send(message);
 
         }catch (MessagingException e) {
@@ -203,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
-    @SuppressLint("RestrictedApi") // also suppressed the warning
     private void takePhoto() {
         ImageCapture imageCapture = this.imageCapture;
         if (imageCapture == null) return;
@@ -231,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onError(@NonNull ImageCaptureException exception) {
                         Log.e(TAG, "Photo capture failed: " + exception.getMessage(), exception);
                     }
-
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                         String msg = "Photo capture succeeded: " + outputFileResults.getSavedUri();
@@ -244,9 +241,6 @@ public class MainActivity extends AppCompatActivity {
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-
-                //Preview preview = new Preview.Builder().build();
-                //preview.setSurfaceProvider(viewBinding.viewFinder.getSurfaceProvider());
 
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
 
