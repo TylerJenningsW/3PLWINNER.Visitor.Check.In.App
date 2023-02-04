@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,13 +41,17 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 public class MainActivity extends AppCompatActivity {
     private static final String FILENAME_FORMAT = "dd-M-yyyy hh:mm:ss";
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
-    private String path;
+    private Uri uri;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
     private Button btnCheckIn;
@@ -129,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendEmail() {
         final String username="3plwinnerwms@gmail.com";
         final String password="rfemloyjgbiqnsak";
-        final String sender = "jorgem@3plwinner.com";
+        final String recipient = "jorgem@3plwinner.com";
         String messageToSend = "Visitor name: " + mFirstName + " " +mLastName +
                 "\nWho is visitor seeing: " + mWhoAreYouVisiting +
                 "\nReason of visit: " + mReason +
@@ -149,11 +153,31 @@ public class MainActivity extends AppCompatActivity {
         try {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(sender));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+
+
+
             message.setSubject("3PLWINNER Visitor Check-In - "+ getCurrentTime());
-            message.setText(messageToSend);
+
+            MimeMultipart multipart = new MimeMultipart();
+
+            MimeBodyPart attachment = new MimeBodyPart();
+
+            attachment.attachFile("path");
+
+            MimeBodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(messageToSend, "text/html");
+            multipart.addBodyPart(messageBodyPart);
+            multipart.addBodyPart(attachment);
+
+            message.setContent(multipart);
+
+//            message.setText(messageToSend);
             Transport.send(message);
+
         }catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -182,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 contentValues
         ).build();
+        uri = outputOptions.getSaveCollection();
 
         imageCapture.takePicture(
                 outputOptions,
@@ -198,9 +223,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, msg);
                     }
                 });
-
-        path = outputOptions.getFile().getAbsolutePath();
-
     }
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
