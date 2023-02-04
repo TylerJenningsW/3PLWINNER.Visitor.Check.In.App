@@ -63,7 +63,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
+// test
 public class MainActivity extends AppCompatActivity {
     private static final String FILENAME_FORMAT = "dd-M-yyyy hh:mm:ss";
     public static final int REQUEST_CODE_PERMISSIONS = 10;
