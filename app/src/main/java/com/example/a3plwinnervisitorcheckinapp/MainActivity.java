@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
-    private Uri uri;
+    private String path;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
     private Button btnCheckIn;
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendEmail() {
+        takePhoto();
         final String username="3plwinnerwms@gmail.com";
         final String password="rfemloyjgbiqnsak";
         final String recipient = "jorgem@3plwinner.com";
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
             MimeBodyPart attachment = new MimeBodyPart();
 
-            attachment.attachFile("path");
+            attachment.attachFile(path);
 
             MimeBodyPart messageBodyPart = new MimeBodyPart();
             messageBodyPart.setContent(messageToSend, "text/html");
@@ -206,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 contentValues
         ).build();
-        uri = outputOptions.getSaveCollection();
 
         imageCapture.takePicture(
                 outputOptions,
@@ -223,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, msg);
                     }
                 });
+        path = outputOptions.getFile().getAbsolutePath();
+
     }
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
