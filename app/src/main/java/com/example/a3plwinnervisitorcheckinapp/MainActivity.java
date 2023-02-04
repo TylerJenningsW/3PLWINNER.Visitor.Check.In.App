@@ -42,6 +42,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
     private String path;
+    private String fileName;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
     private Button btnCheckIn;
@@ -163,8 +167,11 @@ public class MainActivity extends AppCompatActivity {
             MimeMultipart multipart = new MimeMultipart();
 
             MimeBodyPart attachment = new MimeBodyPart();
+            DataSource source = new FileDataSource(path);
 
             attachment.attachFile(path);
+            attachment.setFileName(fileName);
+            attachment.setDataHandler(new DataHandler(source));
 
             MimeBodyPart messageBodyPart = new MimeBodyPart();
             messageBodyPart.setContent(messageToSend, "text/html");
@@ -194,9 +201,9 @@ public class MainActivity extends AppCompatActivity {
         if (imageCapture == null) return;
 
         SimpleDateFormat nameFormat = new SimpleDateFormat(FILENAME_FORMAT, Locale.US);
-        String name = nameFormat.format(System.currentTimeMillis());
+        fileName = nameFormat.format(System.currentTimeMillis());
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image");
