@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
@@ -33,11 +32,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.google.common.util.concurrent.ListenableFuture;
-
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,7 +48,6 @@ import java.util.concurrent.Executors;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -63,9 +57,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-// test
+
 public class MainActivity extends AppCompatActivity {
-    private static final String FILENAME_FORMAT = "dd-M-yyyy hh:mm:ss";
+    private static final String FILENAME_FORMAT = "dd-M-yyyy_hh:mm:ss";
     public static final int REQUEST_CODE_PERMISSIONS = 10;
     public static final String TAG = "CameraXApp";
     private ExecutorService cameraExecutor;
@@ -123,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 edtReason.setError("Enter Reason of Visit");
             }
             if(!mFirstName.isEmpty() && !mLastName.isEmpty() &&
-                !mWhoAreYouVisiting.isEmpty() && !mReason.isEmpty()) {
+                    !mWhoAreYouVisiting.isEmpty() && !mReason.isEmpty()) {
                 // take photo and send information through email
                 takePhoto();
                 final Handler handler = new Handler(Looper.getMainLooper());
@@ -135,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
                     edtLastName.getText().clear();
                     edtWhoAreYouVisiting.getText().clear();
                     edtReason.getText().clear();
-                }, 3000);
+                }, 2000);
+
             }
         });
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -176,12 +171,14 @@ public class MainActivity extends AppCompatActivity {
             MimeMultipart multipart = new MimeMultipart();
 
             MimeBodyPart attachment = new MimeBodyPart();
-            String filePath = getPath(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            String filePath = getPath(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.normalizeScheme());
+            assert filePath != null;
+
             DataSource source = new FileDataSource(filePath);
 
-            attachment.setFileName(fileName+".jpg");
             attachment.setDataHandler(new DataHandler(source));
-
+            Log.d(TAG, filePath);
             MimeBodyPart messageBodyPart = new MimeBodyPart();
             messageBodyPart.setContent(messageToSend, "text/html");
             multipart.addBodyPart(messageBodyPart);
@@ -189,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
 
             message.setContent(multipart);
 
-            message.setText(messageToSend);
             Transport.send(message);
 
         }catch (MessagingException e) {
@@ -202,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
+    @SuppressLint("RestrictedApi") // also suppressed the warning
     private void takePhoto() {
         ImageCapture imageCapture = this.imageCapture;
         if (imageCapture == null) return;
@@ -229,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onError(@NonNull ImageCaptureException exception) {
                         Log.e(TAG, "Photo capture failed: " + exception.getMessage(), exception);
                     }
+
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                         String msg = "Photo capture succeeded: " + outputFileResults.getSavedUri();
@@ -314,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
             else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
+
                 final String type = split[0];
 
                 Uri contentUri = null;
@@ -335,10 +334,13 @@ public class MainActivity extends AppCompatActivity {
         }
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            Log.d(TAG, "------------------------------------------------------------------");
+
             return getDataColumn(context, uri, null, null);
         }
         // File
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
+
             return uri.getPath();
         }
 
@@ -367,7 +369,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                     null);
-            if (cursor != null && cursor.moveToFirst()) {
+            cursor.moveToLast();
+            if (cursor != null) {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
