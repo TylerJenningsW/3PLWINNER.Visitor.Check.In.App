@@ -33,6 +33,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         }
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
+    private String filePath;
     private String fileName;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
@@ -130,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
                     edtWhoAreYouVisiting.getText().clear();
                     edtReason.getText().clear();
                 }, 2000);
+                try {
+                    deletePhoto();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
             }
         });
@@ -172,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
 
             MimeBodyPart attachment = new MimeBodyPart();
 
-            String filePath = getPath(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.normalizeScheme());
+            filePath = getPath(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.normalizeScheme());
             assert filePath != null;
 
             DataSource source = new FileDataSource(filePath);
@@ -198,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
-    @SuppressLint("RestrictedApi") // also suppressed the warning
     private void takePhoto() {
         ImageCapture imageCapture = this.imageCapture;
         if (imageCapture == null) return;
@@ -233,6 +241,16 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, msg);
                     }
                 });
+    }
+    private void deletePhoto() throws IOException {
+        File file = new File(filePath);
+        file.delete();
+        if (file.exists()) {
+            file.getCanonicalFile().delete();
+            if (file.exists()) {
+                getApplicationContext().deleteFile(filePath);
+            }
+        }
     }
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
