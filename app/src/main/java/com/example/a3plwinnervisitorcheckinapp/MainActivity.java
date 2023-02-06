@@ -62,7 +62,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String FILENAME_FORMAT = "dd-M-yyyy_hh:mm:ss";
+    private static final String FILENAME_FORMAT = "dd-M-yyyy hh:mm:ss";
     public static final int REQUEST_CODE_PERMISSIONS = 10;
     public static final String TAG = "CameraXApp";
     private ExecutorService cameraExecutor;
@@ -134,11 +134,16 @@ public class MainActivity extends AppCompatActivity {
                     edtWhoAreYouVisiting.getText().clear();
                     edtReason.getText().clear();
                 }, 2000);
-                try {
-                    deletePhoto();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+
+                handler.postDelayed(() -> {
+
+                    try {
+                        deletePhoto();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, 2000);
+
 
             }
         });
@@ -245,12 +250,7 @@ public class MainActivity extends AppCompatActivity {
     private void deletePhoto() throws IOException {
         File file = new File(filePath);
         file.delete();
-        if (file.exists()) {
-            file.getCanonicalFile().delete();
-            if (file.exists()) {
-                getApplicationContext().deleteFile(filePath);
-            }
-        }
+
     }
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
