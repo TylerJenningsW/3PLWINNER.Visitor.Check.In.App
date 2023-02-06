@@ -10,7 +10,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -76,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
     private String filePath;
-    private String fileName;
     private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
     private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
     private Button btnCheckIn;
@@ -136,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
                 }, 2000);
 
                 handler.postDelayed(() -> {
-
                     try {
                         deletePhoto();
                     } catch (IOException e) {
@@ -158,10 +155,10 @@ public class MainActivity extends AppCompatActivity {
         final String username="3plwinnerwms@gmail.com";
         final String password="rfemloyjgbiqnsak";
         final String recipient = "jorgem@3plwinner.com";
-        String messageToSend = "Visitor name: " + mFirstName + " " +mLastName +
-                "\nWho is visitor seeing: " + mWhoAreYouVisiting +
-                "\nReason of visit: " + mReason +
-                "\nChecked in at: " + getCurrentTime();
+        String messageToSend = "<br><b>Visitor name: </b>" + mFirstName + " " +mLastName +
+                "<br><b>Who is visitor seeing: </b>" + mWhoAreYouVisiting +
+                "<br><b>Reason of visit: </b>" + mReason +
+                "<br><b>Checked in at: </b>" + getCurrentTime();
         Properties props=new Properties();
         props.put("mail.smtp.auth","true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -188,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
 
             filePath = getPath(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.normalizeScheme());
             assert filePath != null;
-
             DataSource source = new FileDataSource(filePath);
 
             attachment.setDataHandler(new DataHandler(source));
@@ -217,10 +213,10 @@ public class MainActivity extends AppCompatActivity {
         if (imageCapture == null) return;
 
         SimpleDateFormat nameFormat = new SimpleDateFormat(FILENAME_FORMAT, Locale.US);
-        fileName = nameFormat.format(System.currentTimeMillis());
+        String fileName = nameFormat.format(System.currentTimeMillis());
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image");
         }
@@ -262,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     cameraProvider.unbindAll();
-                    cameraProvider.bindToLifecycle(MainActivity.this, cameraSelector, imageCapture);
+                    cameraProvider.bindToLifecycle(MainActivity.this, cameraSelector, imageCapture).getCameraInfo();
                 } catch (Exception exception) {
                     Log.e(TAG, "Use case binding failed", exception);
                 }
@@ -315,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
 
-                // TODO handle non-primary volumes
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
