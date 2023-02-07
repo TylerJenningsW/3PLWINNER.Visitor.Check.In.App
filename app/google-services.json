@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "782497866147",
+    "project_id": "visitorcheckin-a4092",
+    "storage_bucket": "visitorcheckin-a4092.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:782497866147:android:15d56fb87269f0569b7a16",
+        "android_client_info": {
+          "package_name": "com.example.a3plwinnervisitorcheckinapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "782497866147-h4pf41ttq9d55c1g2mgeklc1du3ar7d6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPcV0evOWU_1GoHk2AohTgicKhymK92qQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "782497866147-h4pf41ttq9d55c1g2mgeklc1du3ar7d6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

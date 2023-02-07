@@ -28,10 +28,20 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +71,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 public class MainActivity extends AppCompatActivity {
+    private String nextDocumentId;
     private static final String FILENAME_FORMAT = "dd-M-yyyy hh:mm:ss";
     public static final int REQUEST_CODE_PERMISSIONS = 10;
     public static final String TAG = "CameraXApp";
@@ -75,10 +86,14 @@ public class MainActivity extends AppCompatActivity {
         REQUIRED_PERMISSIONS = requiredPermissions.toArray(new String[0]);
     }
     private String filePath;
-    private String mFirstName, mLastName, mWhoAreYouVisiting, mReason;
-    private EditText edtFirstName, edtLastName, edtWhoAreYouVisiting, edtReason;
-    private Button btnCheckIn;
+    private String mFirstName, mLastName, mWhoAreYouVisiting, mReason, mCompany, mCheckInTime, mCheckOutTime, mEmergencyContactName, mEmergencyContactPhone;
+    private EditText edtFirstName, edtLastName, edtCompany, edtEmergencyContactName, edtEmergencyContactPhone;
+    private ProgressBar pbLoading;
+    private Button btnCheckIn, btnCheckOut;
+    private Spinner spinnerWhoAreYouVisiting, spinnerReason;
     private ImageCapture imageCapture = null;
+    private CustomSpinnerAdapter adapterOne, adapterTwo;
+    private FirebaseFirestore db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,13 +102,37 @@ public class MainActivity extends AppCompatActivity {
         // prevents users from rotating screen
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+
+
         getSupportActionBar().hide();
 
         edtFirstName = findViewById(R.id.edtMainScreenFirstName);
         edtLastName = findViewById(R.id.edtMainScreenLastName);
-        edtWhoAreYouVisiting = findViewById(R.id.edtMainScreenWhoAreYouVisiting);
-        edtReason = findViewById(R.id.edtMainScreenReason);
+        edtCompany = findViewById(R.id.edtMainScreenCompany);
+        edtEmergencyContactName = findViewById(R.id.edtMainScreenEmergencyContactName);
+        edtEmergencyContactPhone = findViewById(R.id.edtMainScreenEmergencyContactPhoneNumber);
+
+        spinnerWhoAreYouVisiting = findViewById(R.id.spinnerWhoAreYouVisiting);
+        spinnerReason = findViewById(R.id.spinnerReason);
+
         btnCheckIn = findViewById(R.id.btnMainScreenSubmit);
+        btnCheckOut = findViewById(R.id.btnMainScreenCheckout);
+        pbLoading = findViewById(R.id.pbLoading);
+
+        String defaultTextForSpinnerOne = "Who Are You Visiting?";
+        String defaultTextForSpinnerTwo = "Reason";
+        String[] arrayForSpinnerOne = {"Ashley Raschick", "Brian Rodriguez", "Jorge Monraz", "Mark Vanderwarf", "Erik Figueroa", "Maintenance/Service Call", "Other"};
+        String[] arrayForSpinnerTwo = {"Meeting", "Warehouse Tour", "Maintenance/Service Call", "Service Quote", "Other"};
+
+        adapterOne = new CustomSpinnerAdapter(this, R.layout.spinner_row, arrayForSpinnerOne, defaultTextForSpinnerOne);
+        adapterTwo = new CustomSpinnerAdapter(this, R.layout.spinner_row, arrayForSpinnerTwo, defaultTextForSpinnerTwo);
+
+        spinnerWhoAreYouVisiting.setAdapter(adapterOne);
+        spinnerReason.setAdapter(adapterTwo);
+
+        db = FirebaseFirestore.getInstance();
+
+        pbLoading.setVisibility(View.GONE);
         imageCapture = new ImageCapture.Builder().build();
         if (allPermissionsGranted()) {
             startCamera();
@@ -101,10 +140,17 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
         btnCheckIn.setOnClickListener(v -> {
+            Toast.makeText(this, "Smile! Image is being taken", Toast.LENGTH_SHORT).show();
+            pbLoading.setVisibility(View.VISIBLE);
             mFirstName = edtFirstName.getText().toString();
             mLastName = edtLastName.getText().toString();
-            mWhoAreYouVisiting = edtWhoAreYouVisiting.getText().toString();
-            mReason = edtReason.getText().toString();
+            mCompany = edtCompany.getText().toString();
+            mWhoAreYouVisiting = spinnerWhoAreYouVisiting.getSelectedItem().toString();
+            mEmergencyContactName = edtEmergencyContactName.getText().toString();
+            mEmergencyContactPhone = edtEmergencyContactPhone.getText().toString();
+            mReason = spinnerReason.getSelectedItem().toString();
+            mCheckInTime = getCurrentTime();
+
 
             if(TextUtils.isEmpty(mFirstName)) {
                 edtFirstName.setError("Enter First Name");
@@ -112,37 +158,49 @@ public class MainActivity extends AppCompatActivity {
             if(TextUtils.isEmpty(mLastName)) {
                 edtLastName.setError("Enter Last Name");
             }
-            if(TextUtils.isEmpty(mWhoAreYouVisiting)) {
-                edtWhoAreYouVisiting.setError("Enter Who Are You Visiting");
-            }
-            if(TextUtils.isEmpty(mReason)) {
-                edtReason.setError("Enter Reason of Visit");
-            }
             if(!mFirstName.isEmpty() && !mLastName.isEmpty() &&
                     !mWhoAreYouVisiting.isEmpty() && !mReason.isEmpty()) {
                 // take photo and send information through email
+                Visitor visitor = new Visitor();
+                visitor.setFirstName(mFirstName);
+                visitor.setLastName(mLastName);
+                visitor.setCompany(mCompany);
+                visitor.setWhoAreYouVisiting(mWhoAreYouVisiting);
+                visitor.setReason(mReason);
+                visitor.setCheckInTime(mCheckInTime);
+                visitor.setCheckedIn(true);
+                visitor.setCheckOutTime("none");
+                addDataToFirebase(visitor);
+
                 takePhoto();
                 final Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> {
+
                     sendEmail();
+
                     Intent i = new Intent(MainActivity.this, ConfirmationScreen.class);
                     startActivity(i);
-                    edtFirstName.getText().clear();
-                    edtLastName.getText().clear();
-                    edtWhoAreYouVisiting.getText().clear();
-                    edtReason.getText().clear();
+                    finish();
+
                 }, 2000);
 
-                handler.postDelayed(() -> {
-                    try {
-                        deletePhoto();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, 2000);
+//                handler.postDelayed(() -> {
+//                    try {
+//                        deletePhoto();
+//                    } catch (IOException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }, 2000);
 
 
             }
+
+        });
+
+        btnCheckOut.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, VisitorsCheckout.class);
+            startActivity(i);
+            finish();
         });
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -153,12 +211,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendEmail() {
         final String username="3plwinnerwms@gmail.com";
-        final String password="rfemloyjgbiqnsak";
+        final String password="cjptjqoojmkrpdql";
         final String recipient = "jorgem@3plwinner.com";
         String messageToSend = "<br><b>Visitor name: </b>" + mFirstName + " " +mLastName +
+                "<br><b>Company: </b>" + mCompany +
                 "<br><b>Who is visitor seeing: </b>" + mWhoAreYouVisiting +
                 "<br><b>Reason of visit: </b>" + mReason +
-                "<br><b>Checked in at: </b>" + getCurrentTime();
+                "<br><b>Emergency contact name: </b>" + mEmergencyContactName+
+                "<br><b>Emergency contact phone number: </b>" + mEmergencyContactPhone +
+                "<br><b>Checked in at: </b>" + mCheckInTime;
         Properties props=new Properties();
         props.put("mail.smtp.auth","true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -199,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
             Transport.send(message);
 
         }catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -419,6 +480,33 @@ public class MainActivity extends AppCompatActivity {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        pbLoading.setVisibility(View.GONE);
 
+    }
 
+    private void addDataToFirebase(Visitor _visitor) {
+
+        db.collection("Visitors").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+
+                int id = Integer.parseInt(list.get(list.size() - 1).getId());
+                id++;
+                nextDocumentId = String.valueOf(id);
+
+                _visitor.setDocumentId(String.valueOf(nextDocumentId));
+                db.collection("Visitors").document(String.valueOf(nextDocumentId)).set(_visitor).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                    }
+                });
+            }
+        });
+
+    }
 }

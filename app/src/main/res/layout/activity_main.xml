@@ -16,7 +16,8 @@
         app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintEnd_toStartOf="@id/right"
         app:layout_constraintStart_toStartOf="@id/left"
-        app:layout_constraintTop_toTopOf="@id/top" />
+        app:layout_constraintTop_toTopOf="@id/top"
+        app:layout_constraintBottom_toTopOf="@id/middle"/>
 
     <EditText
         android:id="@+id/edtMainScreenFirstName"
@@ -50,12 +51,12 @@
         app:layout_constraintTop_toBottomOf="@id/edtMainScreenFirstName" />
 
     <EditText
-        android:id="@+id/edtMainScreenWhoAreYouVisiting"
+        android:id="@+id/edtMainScreenCompany"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:background="@drawable/rounded_corners_white"
-        android:hint="Who Are You Visiting?"
+        android:hint="Company"
         android:importantForAutofill="no"
         android:inputType="text"
         android:minHeight="48dp"
@@ -65,13 +66,48 @@
         app:layout_constraintStart_toEndOf="@id/left"
         app:layout_constraintTop_toBottomOf="@id/edtMainScreenLastName" />
 
-    <EditText
-        android:id="@+id/edtMainScreenReason"
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinnerWhoAreYouVisiting"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners_white"
+        android:hint="Who Are You Visiting?"
+        android:importantForAutofill="no"
+        android:spinnerMode="dropdown"
+        android:dropDownWidth="match_parent"
+        android:minHeight="48dp"
+        android:padding="20dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/right"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintTop_toBottomOf="@id/edtMainScreenCompany" />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinnerReason"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:background="@drawable/rounded_corners_white"
         android:hint="Reason"
+        android:importantForAutofill="no"
+        android:spinnerMode="dropdown"
+        android:dropDownWidth="match_parent"
+        android:minHeight="48dp"
+        android:padding="20dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/right"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintTop_toBottomOf="@id/spinnerWhoAreYouVisiting" />
+
+    <EditText
+        android:id="@+id/edtMainScreenEmergencyContactName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners_white"
+        android:hint="Emergency Contact Name"
         android:importantForAutofill="no"
         android:inputType="text"
         android:minHeight="48dp"
@@ -79,7 +115,22 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/right"
         app:layout_constraintStart_toEndOf="@id/left"
-        app:layout_constraintTop_toBottomOf="@id/edtMainScreenWhoAreYouVisiting" />
+        app:layout_constraintTop_toBottomOf="@id/spinnerReason" />
+    <EditText
+        android:id="@+id/edtMainScreenEmergencyContactPhoneNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners_white"
+        android:hint="Emergency Contact Phone Number"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:padding="20dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/right"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintTop_toBottomOf="@id/edtMainScreenEmergencyContactName" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnMainScreenSubmit"
@@ -94,7 +145,22 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/right"
         app:layout_constraintStart_toEndOf="@id/left"
-        app:layout_constraintTop_toBottomOf="@id/edtMainScreenReason" />
+        app:layout_constraintTop_toBottomOf="@id/edtMainScreenEmergencyContactPhoneNumber" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnMainScreenCheckout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_navyblue"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        android:text="Check Out"
+        android:textAllCaps="true"
+        android:textColor="#ffffff"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/right"
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintTop_toBottomOf="@id/btnMainScreenSubmit" />
 
     <TextView
         android:layout_width="0dp"
@@ -133,5 +199,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.3" />
+        app:layout_constraintGuide_percent="0.19" />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
