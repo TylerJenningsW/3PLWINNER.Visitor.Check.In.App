@@ -161,11 +161,13 @@ public class VisitorsCheckout extends AppCompatActivity {
     private void sendEmail(Visitor _visitor) {
         final String username = "3plwinnerwms@gmail.com";
         final String password = "cjptjqoojmkrpdql";
-        final String recipient = "jorgem@3plwinner.com";
+        final String recipient = "brian@3plwinner.com";
         String messageToSend = "<br><b>Visitor name: </b>" + _visitor.getFirstName() + " " + _visitor.getLastName() +
                 "<br><b>Company: </b>" + _visitor.getCompany() +
                 "<br><b>Who is visitor seeing: </b>" + _visitor.getWhoAreYouVisiting() +
                 "<br><b>Reason of visit: </b>" + _visitor.getReason() +
+                "<br><b>Emergency contact name: </b>" + _visitor.getEmergencyContact()+
+                "<br><b>Emergency contact phone number: </b>" + _visitor.getEmergencyPhone() +
                 "<br><b>Checked in at: </b>" + _visitor.getCheckInTime() +
                 "<br><b>Checked out at: </b>" + _visitor.getCheckOutTime();
         Properties props = new Properties();

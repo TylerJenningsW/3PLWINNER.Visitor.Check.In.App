@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         btnCheckOut = findViewById(R.id.btnMainScreenCheckout);
         pbLoading = findViewById(R.id.pbLoading);
 
-        String defaultTextForSpinnerOne = "Who Are You Visiting?";
+        String defaultTextForSpinnerOne = "Company Representative";
         String defaultTextForSpinnerTwo = "Reason";
         String[] arrayForSpinnerOne = {"Ashley Raschick", "Brian Rodriguez", "Jorge Monraz", "Mark Vanderwarf", "Erik Figueroa", "Maintenance/Service Call", "Other"};
         String[] arrayForSpinnerTwo = {"Meeting", "Warehouse Tour", "Maintenance/Service Call", "Service Quote", "Other"};
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
         btnCheckIn.setOnClickListener(v -> {
-            Toast.makeText(this, "Smile! Image is being taken", Toast.LENGTH_SHORT).show();
+
             pbLoading.setVisibility(View.VISIBLE);
             mFirstName = edtFirstName.getText().toString();
             mLastName = edtLastName.getText().toString();
@@ -154,12 +154,21 @@ public class MainActivity extends AppCompatActivity {
 
             if(TextUtils.isEmpty(mFirstName)) {
                 edtFirstName.setError("Enter First Name");
+                pbLoading.setVisibility(View.GONE);
             }
             if(TextUtils.isEmpty(mLastName)) {
                 edtLastName.setError("Enter Last Name");
+                pbLoading.setVisibility(View.GONE);
+            }
+            if(TextUtils.isEmpty(mEmergencyContactName)) {
+                edtEmergencyContactName.setError("Enter Emergency Contact Name");
+            }
+            if(TextUtils.isEmpty(mEmergencyContactPhone)) {
+                edtEmergencyContactPhone.setError("Enter Emergency Contact Phone");
             }
             if(!mFirstName.isEmpty() && !mLastName.isEmpty() &&
-                    !mWhoAreYouVisiting.isEmpty() && !mReason.isEmpty()) {
+                    !mWhoAreYouVisiting.isEmpty() && !mReason.isEmpty() &&
+                    !mEmergencyContactPhone.isEmpty() && !mEmergencyContactName.isEmpty()) {
                 // take photo and send information through email
                 Visitor visitor = new Visitor();
                 visitor.setFirstName(mFirstName);
@@ -168,10 +177,13 @@ public class MainActivity extends AppCompatActivity {
                 visitor.setWhoAreYouVisiting(mWhoAreYouVisiting);
                 visitor.setReason(mReason);
                 visitor.setCheckInTime(mCheckInTime);
+                visitor.setEmergencyContact(mEmergencyContactName);
+                visitor.setEmergencyPhone(mEmergencyContactPhone);
                 visitor.setCheckedIn(true);
                 visitor.setCheckOutTime("none");
                 addDataToFirebase(visitor);
 
+                Toast.makeText(this, "Smile! Image is being taken", Toast.LENGTH_SHORT).show();
                 takePhoto();
                 final Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> {
@@ -200,7 +212,6 @@ public class MainActivity extends AppCompatActivity {
         btnCheckOut.setOnClickListener(v -> {
             Intent i = new Intent(MainActivity.this, VisitorsCheckout.class);
             startActivity(i);
-            finish();
         });
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -212,10 +223,10 @@ public class MainActivity extends AppCompatActivity {
     private void sendEmail() {
         final String username="3plwinnerwms@gmail.com";
         final String password="cjptjqoojmkrpdql";
-        final String recipient = "jorgem@3plwinner.com";
+        final String recipient = "brian@3plwinner.com";
         String messageToSend = "<br><b>Visitor name: </b>" + mFirstName + " " +mLastName +
                 "<br><b>Company: </b>" + mCompany +
-                "<br><b>Who is visitor seeing: </b>" + mWhoAreYouVisiting +
+                "<br><b>Company representative: </b>" + mWhoAreYouVisiting +
                 "<br><b>Reason of visit: </b>" + mReason +
                 "<br><b>Emergency contact name: </b>" + mEmergencyContactName+
                 "<br><b>Emergency contact phone number: </b>" + mEmergencyContactPhone +
